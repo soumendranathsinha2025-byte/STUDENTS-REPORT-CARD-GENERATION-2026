@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soumendra Sir Biology Classes - Advanced Report Card & Exam Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- Chart.js for Performance Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        biology: {
+                            light: '#06b6d4',
+                            DEFAULT: '#0891b2',
+                            dark: '#0e7490'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        signature: ['Great Vibes', 'cursive'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-report-card, #printable-report-card * {
+                visibility: visible;
+            }
+            #printable-report-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 10mm;
+                box-shadow: none !important;
+                background: white !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        .signature-font {
+            font-family: 'Great Vibes', cursive;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <!-- Graphical Logo: DNA + Leaf + Graduation Cap -->
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-900/30 text-slate-900 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:8px_8px]"></div>
+                    <i class="fa-solid fa-dna text-2xl z-10"></i>
+                    <i class="fa-solid fa-graduation-cap text-xs absolute top-1 right-1 z-10 text-emerald-950"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
+                        Soumendra Sir Biology Classes
+                    </h1>
+                    <p class="text-xs text-slate-400">Advanced Biological Sciences & NEET Preparation</p>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-6 text-sm">
+                <div class="flex items-center space-x-2 text-slate-300">
+                    <i class="fa-solid fa-phone text-emerald-400"></i>
+                    <span>8910587106</span>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-300">
+                    <i class="fa-solid fa-location-dot text-cyan-400"></i>
+                    <span>Chandannagar, Hooghly</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-slate-200 mb-8 space-x-8 no-print overflow-x-auto">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn pb-4 px-2 border-b-2 border-emerald-600 font-semibold text-emerald-600 flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Dashboard & Analytics</span>
+            </button>
+            <button onclick="switchTab('students')" id="tab-students" class="tab-btn pb-4 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>Student Management</span>
+            </button>
+            <button onclick="switchTab('exams')" id="tab-exams" class="tab-btn pb-4 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-file-pen"></i>
+                <span>Exam Marks Entry</span>
+            </button>
+            <button onclick="switchTab('reports')" id="tab-reports" class="tab-btn pb-4 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-award"></i>
+                <span>Report Cards & NEET Score</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="section-dashboard" class="space-y-8">
+            <!-- Hero Stats Banner -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-wider font-semibold text-slate-400">Total Enrolled Students</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1" id="stat-total-students">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-wider font-semibold text-slate-400">Biology Exams Conducted</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1" id="stat-total-exams">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-book-medical"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-wider font-semibold text-slate-400">NEET Mock Series</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1" id="stat-total-neet">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-stethoscope"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-wider font-semibold text-slate-400">Avg Class Performance</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1" id="stat-avg-score">0%</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Institute Overview Card -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+                <div class="absolute right-0 top-0 translate-x-12 -translate-y-12 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="space-y-4 max-w-2xl z-10">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <i class="fa-solid fa-award mr-2"></i> Excellence in Medical Entrance Coaching
+                    </span>
+                    <h2 class="text-3xl font-extrabold tracking-tight">Soumendra Sir Biology Classes</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Empowering NEET aspirants and biology scholars with rigorous concept mapping, detailed mock series across Biology, Physics, and Chemistry, and professional performance analytics. Headquartered in Chandannagar, Hooghly.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="switchTab('students')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold px-6 py-2.5 rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center space-x-2">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Manage Students</span>
+                        </button>
+                        <button onclick="switchTab('reports')" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-2.5 rounded-xl backdrop-blur-md transition border border-white/10 flex items-center space-x-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Generate Report Cards</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-8 md:mt-0 z-10 flex flex-col items-center justify-center bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold mb-2">Faculty & Director</p>
+                    <p class="text-2xl font-signature text-emerald-300 tracking-wide">Soumendra Nath Sinha</p>
+                    <p class="text-xs text-slate-400 mt-1">M.Sc. (Biology), Expert NEET Mentor</p>
+                    <div class="mt-4 pt-4 border-t border-white/10 w-full flex justify-around text-xs text-slate-300">
+                        <span><i class="fa-solid fa-phone text-emerald-400 mr-1"></i> 8910587106</span>
+                        <span><i class="fa-solid fa-map-pin text-cyan-400 mr-1"></i> Hooghly</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: STUDENT MANAGEMENT -->
+        <section id="section-students" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Student Directory</h2>
+                    <p class="text-sm text-slate-500">Add and manage student profiles. Data persists locally.</p>
+                </div>
+                <button onclick="openStudentModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Add New Student</span>
+                </button>
+            </div>
+
+            <!-- Student Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
+                                <th class="py-4 px-6 font-semibold">Roll / ID</th>
+                                <th class="py-4 px-6 font-semibold">Student Name</th>
+                                <th class="py-4 px-6 font-semibold">Batch</th>
+                                <th class="py-4 px-6 font-semibold">Contact</th>
+                                <th class="py-4 px-6 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: EXAM & MARKS ENTRY -->
+        <section id="section-exams" class="hidden space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Regular Biology Exam Entry -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-book-open text-emerald-600 mr-2"></i>Biology Exam Series</h2>
+                            <p class="text-xs text-slate-500">Record marks for regular biology chapter tests & series.</p>
+                        </div>
+                    </div>
+                    <form id="bio-exam-form" onsubmit="saveBioExam(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Select Student</label>
+                            <select id="bio-student-select" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <!-- Populated -->
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Exam / Topic Name</label>
+                                <input type="text" id="bio-exam-topic" placeholder="e.g. Human Physiology Test" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Exam Date</label>
+                                <input type="date" id="bio-exam-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Marks Obtained</label>
+                                <input type="number" step="0.5" id="bio-marks-obtained" placeholder="e.g. 85" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Total Full Marks</label>
+                                <input type="number" step="0.5" id="bio-marks-total" placeholder="e.g. 100" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Save Biology Exam Marks</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Dedicated NEET Exam Series Entry -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-stethoscope text-cyan-600 mr-2"></i>NEET Mock Series (Physics, Chem, Bio)</h2>
+                            <p class="text-xs text-slate-500">Record individual subject marks for NEET pattern tests.</p>
+                        </div>
+                    </div>
+                    <form id="neet-exam-form" onsubmit="saveNeetExam(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Select Student</label>
+                            <select id="neet-student-select" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <!-- Populated -->
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">NEET Test Series Title</label>
+                                <input type="text" id="neet-exam-title" placeholder="e.g. NEET Grand Mock #1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Test Date</label>
+                                <input type="date" id="neet-exam-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Physics (180)</label>
+                                <input type="number" step="0.5" id="neet-physics" placeholder="Score" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Chemistry (180)</label>
+                                <input type="number" step="0.5" id="neet-chemistry" placeholder="Score" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Biology (360)</label>
+                                <input type="number" step="0.5" id="neet-biology" placeholder="Score" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-xl transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Save NEET Mock Marks</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: REPORT CARDS & PERFORMANCE -->
+        <section id="section-reports" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 no-print">
+                <div class="flex items-center space-x-4 w-full md:w-auto">
+                    <label class="text-sm font-bold text-slate-700 whitespace-nowrap">Select Student:</label>
+                    <select id="report-student-select" onchange="renderReportCard()" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium w-full md:w-80 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <!-- Populated -->
+                    </select>
+                </div>
+                <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                    <button onclick="printReportCard()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Print A4 Report</span>
+                    </button>
+                    <button onclick="downloadWordReport()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-file-word"></i>
+                        <span>Export Word (.doc)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable A4 Report Card Container -->
+            <div id="printable-report-card" class="bg-white max-w-4xl mx-auto p-10 rounded-3xl shadow-xl border border-slate-200 space-y-8 relative">
+                
+                <!-- Watermark Logo -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                    <i class="fa-solid fa-dna text-[350px]"></i>
+                </div>
+
+                <!-- Institute Header -->
+                <div class="flex items-center justify-between border-b-2 border-emerald-600 pb-6 relative z-10">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-2xl flex items-center justify-center text-white text-3xl shadow-md">
+                            <i class="fa-solid fa-dna"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight font-serif">SOUMENDRA SIR BIOLOGY CLASSES</h1>
+                            <p class="text-xs font-semibold text-emerald-700 uppercase tracking-widest">Advanced Biological Sciences & NEET Preparation</p>
+                        </div>
+                    </div>
+                    <div class="text-right text-xs text-slate-600 space-y-1">
+                        <p><i class="fa-solid fa-phone text-emerald-600 mr-1"></i> 8910587106</p>
+                        <p><i class="fa-solid fa-location-dot text-cyan-600 mr-1"></i> Chandannagar, Hooghly</p>
+                        <p class="font-semibold text-slate-900">Official Performance Report Card</p>
+                    </div>
+                </div>
+
+                <!-- Student Information Grid -->
+                <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10 text-sm">
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Student Name</span>
+                        <span id="rep-student-name" class="font-bold text-slate-900 text-base">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Roll / ID</span>
+                        <span id="rep-student-roll" class="font-bold text-slate-900 text-base">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Batch</span>
+                        <span id="rep-student-batch" class="font-bold text-slate-900 text-base">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Contact</span>
+                        <span id="rep-student-contact" class="font-bold text-slate-900 text-base">-</span>
+                    </div>
+                </div>
+
+                <!-- Section 1: Regular Biology Exam Records -->
+                <div class="space-y-3 relative z-10">
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-book-open text-emerald-600 mr-2"></i> Regular Biology Exam Series Performance
+                    </h3>
+                    <div class="overflow-hidden rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-emerald-50 text-emerald-900 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="py-3 px-4 font-semibold">Exam Topic / Title</th>
+                                    <th class="py-3 px-4 font-semibold">Date</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Marks Obtained</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Full Marks</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-bio-table-body" class="divide-y divide-slate-100">
+                                <!-- Populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2: NEET Mock Exam Records -->
+                <div class="space-y-3 relative z-10">
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-stethoscope text-cyan-600 mr-2"></i> NEET Mock Exam Series (Physics, Chemistry & Biology)
+                    </h3>
+                    <div class="overflow-hidden rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-cyan-50 text-cyan-900 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="py-3 px-4 font-semibold">Mock Series</th>
+                                    <th class="py-3 px-4 font-semibold">Date</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Physics (180)</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Chemistry (180)</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Biology (360)</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Total (720)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-neet-table-body" class="divide-y divide-slate-100">
+                                <!-- Populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 3: Summary, Performance Level & Remarks -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 pt-2">
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Aggregate</span>
+                            <div class="mt-2 flex items-baseline space-x-2">
+                                <span id="rep-total-score" class="text-3xl font-extrabold text-slate-900">0</span>
+                                <span id="rep-avg-score" class="text-sm font-semibold text-emerald-600">0%</span>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-semibold text-slate-500">Letter Grade:</span>
+                            <span id="rep-letter-grade" class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold text-sm">-</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Performance Level</span>
+                        <div class="mt-2">
+                            <span id="rep-performance-badge" class="inline-block px-4 py-1.5 rounded-full font-bold text-sm shadow-sm">-</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5 mt-4 overflow-hidden">
+                            <div id="rep-performance-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Teacher's Remarks</span>
+                        <p id="rep-teacher-remarks" class="text-sm italic text-slate-700 leading-relaxed mt-1">-</p>
+                    </div>
+                </div>
+
+                <!-- Graphical Performance Chart Canvas -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 relative z-10">
+                    <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Graphical Performance Trajectory</h4>
+                    <div class="h-48 w-full">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Teacher Signature & Footer Note -->
+                <div class="flex justify-between items-end pt-8 border-t border-slate-200 relative z-10">
+                    <div>
+                        <p class="text-xs text-slate-500">Report generated via Soumendra Sir Biology Classes System.</p>
+                        <p class="text-xs font-medium text-emerald-700 mt-1">Verified & Certified Academic Record.</p>
+                    </div>
+                    <div class="text-center">
+                        <!-- Stylized Graphical Cursive Signature -->
+                        <div class="signature-font text-4xl text-slate-900 -mb-2">Soumendra Nath Sinha</div>
+                        <div class="w-48 h-0.5 bg-slate-900 mb-1"></div>
+                        <p class="text-xs font-bold text-slate-800">Soumendra Nath Sinha</p>
+                        <p class="text-[10px] text-slate-500">Senior Biology Faculty & NEET Mentor</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: ADD / EDIT STUDENT -->
+    <div id="student-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                <h3 id="modal-title" class="text-lg font-bold text-slate-900">Add New Student</h3>
+                <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="student-form" onsubmit="handleStudentSubmit(event)" class="space-y-4">
+                <input type="hidden" id="student-edit-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Student Full Name</label>
+                    <input type="text" id="student-name" placeholder="e.g. Arnab Mukherjee" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Roll / Student ID</label>
+                    <input type="text" id="student-roll" placeholder="e.g. BIO-2026-001" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Batch / Class</label>
+                    <input type="text" id="student-batch" placeholder="e.g. NEET Target 2026 Batch A" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contact Number</label>
+                    <input type="text" id="student-contact" placeholder="e.g. 9876543210" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" onclick="closeStudentModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition text-sm">Cancel</button>
+                    <button type="submit" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition text-sm shadow-sm">Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3 text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message">Action completed successfully!</span>
+    </div>
+
+    <!-- App Logic Script -->
+    <script>
+        // LocalStorage State Management
+        let state = {
+            students: JSON.parse(localStorage.getItem('ss_students')) || [
+                { id: '1', name: 'Ananya Chatterjee', roll: 'NEET-01', batch: 'Target 2026 Batch A', contact: '9831012345' },
+                { id: '2', name: 'Debayan Sengupta', roll: 'NEET-02', batch: 'Class 12 Regular', contact: '9163098765' }
+            ],
+            bioExams: JSON.parse(localStorage.getItem('ss_bioExams')) || [
+                { id: 'b1', studentId: '1', topic: 'Cell Cycle & Division', date: '2026-03-01', obtained: 88, total: 100 },
+                { id: 'b2', studentId: '1', topic: 'Human Physiology - Digestion', date: '2026-03-10', obtained: 92, total: 100 }
+            ],
+            neetExams: JSON.parse(localStorage.getItem('ss_neetExams')) || [
+                { id: 'n1', studentId: '1', title: 'NEET Mock Test 01', date: '2026-03-15', physics: 140, chemistry: 150, biology: 320 }
+            ]
+        };
+
+        let performanceChartInstance = null;
+
+        function persistState() {
+            localStorage.setItem('ss_students', JSON.stringify(state.students));
+            localStorage.setItem('ss_bioExams', JSON.stringify(state.bioExams));
+            localStorage.setItem('ss_neetExams', JSON.stringify(state.neetExams));
+            updateDashboardStats();
+            populateDropdowns();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-message');
+            const icon = document.getElementById('toast-icon');
+            msg.innerText = message;
+            icon.className = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-amber-400';
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-emerald-600', 'text-emerald-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('border-emerald-600', 'text-emerald-600');
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+
+            if (tabId === 'students') renderStudentTable();
+            if (tabId === 'reports') renderReportCard();
+        }
+
+        // Dashboard Stats
+        function updateDashboardStats() {
+            document.getElementById('stat-total-students').innerText = state.students.length;
+            document.getElementById('stat-total-exams').innerText = state.bioExams.length;
+            document.getElementById('stat-total-neet').innerText = state.neetExams.length;
+
+            let totalPctSum = 0;
+            let count = 0;
+            state.students.forEach(st => {
+                const bEx = state.bioExams.filter(e => e.studentId === st.id);
+                bEx.forEach(e => {
+                    totalPctSum += (e.obtained / e.total) * 100;
+                    count++;
+                });
+            });
+            const avg = count > 0 ? (totalPctSum / count).toFixed(1) : 0;
+            document.getElementById('stat-avg-score').innerText = avg + '%';
+        }
+
+        // Student Management
+        function openStudentModal(id = null) {
+            const modal = document.getElementById('student-modal');
+            const title = document.getElementById('modal-title');
+            document.getElementById('student-form').reset();
+            document.getElementById('student-edit-id').value = '';
+
+            if (id) {
+                title.innerText = 'Edit Student Profile';
+                const st = state.students.find(s => s.id === id);
+                if (st) {
+                    document.getElementById('student-edit-id').value = st.id;
+                    document.getElementById('student-name').value = st.name;
+                    document.getElementById('student-roll').value = st.roll;
+                    document.getElementById('student-batch').value = st.batch;
+                    document.getElementById('student-contact').value = st.contact;
+                }
+            } else {
+                title.innerText = 'Add New Student';
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeStudentModal() {
+            const modal = document.getElementById('student-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleStudentSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('student-edit-id').value;
+            const name = document.getElementById('student-name').value;
+            const roll = document.getElementById('student-roll').value;
+            const batch = document.getElementById('student-batch').value;
+            const contact = document.getElementById('student-contact').value;
+
+            if (editId) {
+                const st = state.students.find(s => s.id === editId);
+                if (st) {
+                    st.name = name;
+                    st.roll = roll;
+                    st.batch = batch;
+                    st.contact = contact;
+                }
+                showToast('Student profile updated successfully!');
+            } else {
+                const newSt = {
+                    id: Date.now().toString(),
+                    name, roll, batch, contact
+                };
+                state.students.push(newSt);
+                showToast('New student added successfully!');
+            }
+            persistState();
+            closeStudentModal();
+            renderStudentTable();
+        }
+
+        function deleteStudent(id) {
+            if (confirm('Are you sure you want to delete this student and all associated exam records?')) {
+                state.students = state.students.filter(s => s.id !== id);
+                state.bioExams = state.bioExams.filter(e => e.studentId !== id);
+                state.neetExams = state.neetExams.filter(e => e.studentId !== id);
+                persistState();
+                renderStudentTable();
+                showToast('Student deleted successfully.', 'warning');
+            }
+        }
+
+        function renderStudentTable() {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = '';
+            if (state.students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">No students found. Add a student to begin.</td></tr>`;
+                return;
+            }
+            state.students.forEach(st => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-4 px-6 font-semibold text-slate-900">${st.roll}</td>
+                        <td class="py-4 px-6 font-medium text-slate-800">${st.name}</td>
+                        <td class="py-4 px-6 text-slate-600">${st.batch}</td>
+                        <td class="py-4 px-6 text-slate-600">${st.contact}</td>
+                        <td class="py-4 px-6 text-right space-x-2">
+                            <button onclick="openStudentModal('${st.id}')" class="text-blue-600 hover:text-blue-800 font-medium px-2 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteStudent('${st.id}')" class="text-rose-600 hover:text-rose-800 font-medium px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Populate Dropdowns
+        function populateDropdowns() {
+            const bioSel = document.getElementById('bio-student-select');
+            const neetSel = document.getElementById('neet-student-select');
+            const repSel = document.getElementById('report-student-select');
+
+            const optionsHTML = state.students.length > 0 
+                ? state.students.map(s => `<option value="${s.id}">${s.name} (${s.roll})</option>`).join('')
+                : `<option value="">No students available</option>`;
+
+            bioSel.innerHTML = optionsHTML;
+            neetSel.innerHTML = optionsHTML;
+            repSel.innerHTML = optionsHTML;
+        }
+
+        // Exam Marks Submission
+        function saveBioExam(e) {
+            e.preventDefault();
+            const newExam = {
+                id: Date.now().toString(),
+                studentId: document.getElementById('bio-student-select').value,
+                topic: document.getElementById('bio-exam-topic').value,
+                date: document.getElementById('bio-exam-date').value,
+                obtained: parseFloat(document.getElementById('bio-marks-obtained').value),
+                total: parseFloat(document.getElementById('bio-marks-total').value)
+            };
+            state.bioExams.push(newExam);
+            persistState();
+            document.getElementById('bio-exam-form').reset();
+            showToast('Biology exam marks recorded successfully!');
+        }
+
+        function saveNeetExam(e) {
+            e.preventDefault();
+            const newNeet = {
+                id: Date.now().toString(),
+                studentId: document.getElementById('neet-student-select').value,
+                title: document.getElementById('neet-exam-title').value,
+                date: document.getElementById('neet-exam-date').value,
+                physics: parseFloat(document.getElementById('neet-physics').value),
+                chemistry: parseFloat(document.getElementById('neet-chemistry').value),
+                biology: parseFloat(document.getElementById('neet-biology').value)
+            };
+            state.neetExams.push(newNeet);
+            persistState();
+            document.getElementById('neet-exam-form').reset();
+            showToast('NEET mock series marks recorded successfully!');
+        }
+
+        // Report Card Renderer
+        function renderReportCard() {
+            const studentId = document.getElementById('report-student-select').value;
+            const student = state.students.find(s => s.id === studentId);
+
+            if (!student) {
+                document.getElementById('rep-student-name').innerText = 'No Student Selected';
+                document.getElementById('rep-student-roll').innerText = '-';
+                document.getElementById('rep-student-batch').innerText = '-';
+                document.getElementById('rep-student-contact').innerText = '-';
+                document.getElementById('rep-bio-table-body').innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Please select a student.</td></tr>`;
+                document.getElementById('rep-neet-table-body').innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-400">Please select a student.</td></tr>`;
+                return;
+            }
+
+            document.getElementById('rep-student-name').innerText = student.name;
+            document.getElementById('rep-student-roll').innerText = student.roll;
+            document.getElementById('rep-student-batch').innerText = student.batch;
+            document.getElementById('rep-student-contact').innerText = student.contact;
+
+            // Render Biology Exams
+            const bioExs = state.bioExams.filter(e => e.studentId === studentId);
+            const bioTbody = document.getElementById('rep-bio-table-body');
+            bioTbody.innerHTML = '';
+            let bioTotalObtained = 0;
+            let bioTotalFull = 0;
+
+            if (bioExs.length === 0) {
+                bioTbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">No biology exam records found.</td></tr>`;
+            } else {
+                bioExs.forEach(e => {
+                    bioTotalObtained += e.obtained;
+                    bioTotalFull += e.total;
+                    const pct = ((e.obtained / e.total) * 100).toFixed(1);
+                    bioTbody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-3 px-4 font-medium text-slate-800">${e.topic}</td>
+                            <td class="py-3 px-4 text-slate-600">${e.date}</td>
+                            <td class="py-3 px-4 text-center font-bold text-slate-900">${e.obtained}</td>
+                            <td class="py-3 px-4 text-center text-slate-600">${e.total}</td>
+                            <td class="py-3 px-4 text-center font-semibold text-emerald-600">${pct}%</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render NEET Exams
+            const neetExs = state.neetExams.filter(e => e.studentId === studentId);
+            const neetTbody = document.getElementById('rep-neet-table-body');
+            neetTbody.innerHTML = '';
+            let neetTotalScoreSum = 0;
+
+            if (neetExs.length === 0) {
+                neetTbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-400">No NEET mock records found.</td></tr>`;
+            } else {
+                neetExs.forEach(e => {
+                    const totalScore = e.physics + e.chemistry + e.biology;
+                    neetTotalScoreSum += totalScore;
+                    neetTbody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-3 px-4 font-medium text-slate-800">${e.title}</td>
+                            <td class="py-3 px-4 text-slate-600">${e.date}</td>
+                            <td class="py-3 px-4 text-center font-semibold text-slate-900">${e.physics}</td>
+                            <td class="py-3 px-4 text-center font-semibold text-slate-900">${e.chemistry}</td>
+                            <td class="py-3 px-4 text-center font-semibold text-slate-900">${e.biology}</td>
+                            <td class="py-3 px-4 text-center font-bold text-cyan-700">${totalScore} / 720</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Calculate Overall Metrics & Letter Grade
+            let overallPct = 0;
+            if (bioTotalFull > 0) {
+                overallPct = (bioTotalObtained / bioTotalFull) * 100;
+            } else if (neetExs.length > 0) {
+                const avgNeet = neetTotalScoreSum / neetExs.length;
+                overallPct = (avgNeet / 720) * 100;
+            }
+
+            document.getElementById('rep-total-score').innerText = bioTotalFull > 0 ? `${bioTotalObtained} / ${bioTotalFull}` : (neetExs.length > 0 ? `${neetTotalScoreSum} Marks` : 'N/A');
+            document.getElementById('rep-avg-score').innerText = `${overallPct.toFixed(1)}%`;
+
+            // Letter Grade & Performance Level
+            let grade = 'F';
+            let badgeText = 'Needs Improvement';
+            let badgeClass = 'bg-rose-100 text-rose-800 border border-rose-200';
+            let remarks = 'Requires focused attention and rigorous revision in biological concepts under personal mentorship.';
+
+            if (overallPct >= 90) {
+                grade = 'A+';
+                badgeText = 'Outstanding';
+                badgeClass = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                remarks = 'Exceptional grasp of biological concepts and NEET problem-solving methodology. Maintains exemplary consistency and precision.';
+            } else if (overallPct >= 80) {
+                grade = 'A';
+                badgeText = 'Excellent';
+                badgeClass = 'bg-teal-100 text-teal-800 border border-teal-200';
+                remarks = 'Demonstrates profound understanding across core topics. Highly dedicated with strong analytical skills in medical entrance tests.';
+            } else if (overallPct >= 70) {
+                grade = 'B+';
+                badgeText = 'Very Good';
+                badgeClass = 'bg-cyan-100 text-cyan-800 border border-cyan-200';
+                remarks = 'Very good performance with solid conceptual clarity. Minor revisions in applied sections will yield top-tier results.';
+            } else if (overallPct >= 60) {
+                grade = 'B';
+                badgeText = 'Good';
+                badgeClass = 'bg-blue-100 text-blue-800 border border-blue-200';
+                remarks = 'Shows steady progress and good participation in mock exams. Regular doubt clearing sessions are recommended.';
+            } else if (overallPct >= 45) {
+                grade = 'C';
+                badgeText = 'Satisfactory';
+                badgeClass = 'bg-amber-100 text-amber-800 border border-amber-200';
+                remarks = 'Satisfactory effort. Needs more rigorous practice in NCERT line-by-line questions and test series execution.';
+            }
+
+            document.getElementById('rep-letter-grade').innerText = grade;
+            const badgeEl = document.getElementById('rep-performance-badge');
+            badgeEl.innerText = badgeText;
+            badgeEl.className = `inline-block px-4 py-1.5 rounded-full font-bold text-sm shadow-sm ${badgeClass}`;
+            document.getElementById('rep-performance-bar.style').width = `${overallPct}%`;
+            document.getElementById('rep-teacher-remarks').innerText = `"${remarks}"`;
+
+            // Render Chart
+            renderPerformanceChart(bioExs, neetExs);
+        }
+
+        function renderPerformanceChart(bioExs, neetExs) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            if (performanceChartInstance) {
+                performanceChartInstance.destroy();
+            }
+
+            const labels = [];
+            const dataPoints = [];
+
+            bioExs.forEach(e => {
+                labels.push(e.topic);
+                dataPoints.push(((e.obtained / e.total) * 100).toFixed(1));
+            });
+
+            neetExs.forEach(e => {
+                labels.push(e.title);
+                dataPoints.push((( (e.physics + e.chemistry + e.biology) / 720 ) * 100).toFixed(1));
+            });
+
+            performanceChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length > 0 ? labels : ['No Exams Yet'],
+                    datasets: [{
+                        label: 'Performance Percentage (%)',
+                        data: dataPoints.length > 0 ? dataPoints : [0],
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#047857',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { font: { size: 10 } }
+                        },
+                        x: {
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function printReportCard() {
+            window.print();
+        }
+
+        function downloadWordReport() {
+            const htmlContent = document.getElementById('printable-report-card').outerHTML;
+            const blob = new Blob(['\ufeff' + htmlContent], {
+                type: 'application/msword'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Soumendra_Sir_Biology_Report_Card.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Word report downloaded successfully!');
+        }
+
+        // Initialize on Load
+        window.onload = function() {
+            persistState();
+            switchTab('dashboard');
+        };
+    </script>
+</body>
+</html>
